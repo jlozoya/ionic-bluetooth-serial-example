@@ -10,19 +10,20 @@
 </ion-header>
 
 <ion-content>
-<ion-refresher (ionRefresh)="refresh_bluetooth($event)">
-    <ion-refresher-content refreshingText="Buscando dispositivos bluetooth"></ion-refresher-content>
+<ion-refresher *ngIf="mostrarSpiner === false" (ionRefresh)="refresh_bluetooth($event)">
+  <ion-refresher-content refreshingText="Buscando dispositivos bluetooth"></ion-refresher-content>
 </ion-refresher>
-<ion-segment [hidden]="mostrarSpiner === false">
-  <ion-spinner></ion-spinner><p>Buscando dispositivos bluetooth</p>
+<ion-segment [hidden]="mostrarSpiner === false" align="center">
+  <ion-spinner></ion-spinner>
+  Buscando dispositivos bluetooth
 </ion-segment>
 <ion-item-group>
-  <ion-item-sliding *ngFor="let m of li_devices">
-    <button (click)="revisar_conexion(m)" ion-item>
-      <h3>Nombre: {{m.name}}</h3>
-      <p>Id: {{m.id}}</p>
-      <p>Direccion mac o uuid: {{m.address}}{{m.uuid}}</p>
-      <p>Clase o rssi: {{m.class}}{{m.rssi}}</p>
+  <ion-item-sliding *ngFor="let device of li_devices">
+    <button (click)="revisar_conexion(device)" ion-item>
+      <h3>Nombre: {{device.name}}</h3>
+      <p>Id: {{device.id}}</p>
+      <p>Dirección <span [hidden]="device.address == undefined">mac</span><span [hidden]="device.uuid == undefined">uuid</span>: {{device.address}}{{device.uuid}}</p>
+      <p><span [hidden]="device.class == undefined">Clase</span><span [hidden]="device.rssi == undefined">Rssi</span>: {{device.class}}{{device.rssi}}</p>
     </button>
   </ion-item-sliding>
 </ion-item-group>
@@ -35,4 +36,7 @@
     <button ion-button type="submit" block>Enviar</button>
   </ion-segment>
 </form>
+<div [hidden]="li_devices.length > 0 || mostrarSpiner == true" align="center">
+  <p>No se han encontrado dispositivos desliza hacia abajo para volver a buscar</p>
+</div>
 </ion-content>

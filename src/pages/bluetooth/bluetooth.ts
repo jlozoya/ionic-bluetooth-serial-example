@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Injectable } from '@angular/core';
 import { IonicPage, Platform, ToastController, AlertController, Refresher } from 'ionic-angular';
 import { BluetoothSerial } from '@ionic-native/bluetooth-serial';
 import { Observable } from 'rxjs';
@@ -9,6 +9,7 @@ import { ISubscription } from "rxjs/Subscription";
  * @author Juan Lozoya <jlozoya1995@gmail.com>
  * @see [Bluetooth Serial](https://ionicframework.com/docs/native/bluetooth-serial/)
  */
+@Injectable()
 @IonicPage({
   name: 'BluetoothPage',
   priority: 'high'
@@ -20,18 +21,18 @@ import { ISubscription } from "rxjs/Subscription";
 export class BluetoothPage {
 
   li_devices: Array<any> = [];
-  loading: any;
-  mostrarSpiner = true;
-  private conexion: ISubscription;
-  private conexionMensajes: ISubscription;
-  private reader: Observable<any>;
-  bluetoothSerial;
+  mostrarSpiner = false;
+  mensaje: string = "";
+  conexion: ISubscription;
+  conexionMensajes: ISubscription;
+  reader: Observable<any>;
+
   constructor(
-  public platform: Platform, 
-  public toastCtrl: ToastController,
-  public alertCtrl: AlertController) {
-    this.bluetoothSerial = new BluetoothSerial();
-  }
+    private platform: Platform, 
+    private toastCtrl: ToastController,
+    private alertCtrl: AlertController,
+    private bluetoothSerial: BluetoothSerial
+  ) { }
   /**
    * Al entrar en la ventana ejecuta la función para buscar dispositivos bluetooth.
    */
@@ -86,6 +87,7 @@ export class BluetoothPage {
    * @param refresher 
    */
   refresh_bluetooth(refresher: Refresher) {
+    console.log(refresher);
     if (refresher) {
       this.buscar_bluetooth().then((successMessage: Array<Object>) => {
         this.li_devices = [];
@@ -174,7 +176,6 @@ export class BluetoothPage {
       this.conexion.unsubscribe();
     }
   }
-  mensaje: string = "";
   /**
    * Permite enviar mensajes de texto vía serial al conectarse por bluetooth.
    */
