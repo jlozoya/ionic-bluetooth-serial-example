@@ -1,0 +1,38 @@
+<ion-header>
+  <ion-navbar>
+    <button ion-button menuToggle>
+      <ion-icon name="menu"></ion-icon>
+    </button>     
+    <ion-title>
+      Conectar
+    </ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content>
+<ion-refresher (ionRefresh)="refresh_bluetooth($event)">
+    <ion-refresher-content refreshingText="Buscando dispositivos bluetooth"></ion-refresher-content>
+</ion-refresher>
+<ion-segment [hidden]="mostrarSpiner === false">
+  <ion-spinner></ion-spinner><p>Buscando dispositivos bluetooth</p>
+</ion-segment>
+<ion-item-group>
+  <ion-item-sliding *ngFor="let m of li_devices">
+    <button (click)="revisar_conexion(m)" ion-item>
+      <h3>Nombre: {{m.name}}</h3>
+      <p>Id: {{m.id}}</p>
+      <p>Direccion mac o uuid: {{m.address}}{{m.uuid}}</p>
+      <p>Clase o rssi: {{m.class}}{{m.rssi}}</p>
+    </button>
+  </ion-item-sliding>
+</ion-item-group>
+<form (ngSubmit)="enviarMensajes();">
+  <ion-item>
+    <ion-input type="text" [(ngModel)]="mensaje" name="mensaje"></ion-input>
+  </ion-item>
+  <ion-segment>
+    <button ion-button (click)="desconectar()" block>Desconectar</button>
+    <button ion-button type="submit" block>Enviar</button>
+  </ion-segment>
+</form>
+</ion-content>
