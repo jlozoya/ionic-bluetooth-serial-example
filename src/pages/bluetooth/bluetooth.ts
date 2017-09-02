@@ -21,12 +21,13 @@ import { ISubscription } from "rxjs/Subscription";
 export class BluetoothPage {
 
   li_devices: Array<any> = [];
-  mostrarSpiner = false;
+  mostrarSpiner = true;
   mensaje: string = "";
   conexion: ISubscription;
   conexionMensajes: ISubscription;
   reader: Observable<any>;
-
+  rawListener;
+  
   constructor(
     private platform: Platform, 
     private toastCtrl: ToastController,
@@ -38,16 +39,11 @@ export class BluetoothPage {
    */
   ionViewDidEnter() {
     this.platform.ready().then(() => {
-      this.buscar_bluetooth().then((successMessage: Array<Object>) => {
-        this.li_devices = successMessage;
+      this.buscar_bluetooth().then((success: Array<Object>) => {
+        this.li_devices = success;
         this.mostrarSpiner = false;
-      },
-      failureMessage => {
-        const toast = this.toastCtrl.create({
-          message: JSON.stringify(failureMessage),
-          duration: 3000
-        });
-        toast.present();
+      }, fail => {
+        this.presentToast(fail);
         this.mostrarSpiner = false;
       });
     });
@@ -73,11 +69,11 @@ export class BluetoothPage {
             reject('No se encontraron dispositivos');
           }
         }).catch((error) => {
-          console.log(`Error: ${JSON.stringify(error)}`);
+          console.log(`[1] Error: ${JSON.stringify(error)}`);
           reject('Bluetooth no disponible en esta plataforma');
         });
       }, fail => {
-        console.log(`Error: ${JSON.stringify(fail)}`);
+        console.log(`[2] Error: ${JSON.stringify(fail)}`);
         reject('El bluetooth no está disponible o está apagado');
       });
     });
@@ -94,11 +90,7 @@ export class BluetoothPage {
         this.li_devices = successMessage;
         refresher.complete();
       }, fail => {
-        const toast = this.toastCtrl.create({
-          message: JSON.stringify(fail),
-          duration: 3000
-        });
-        toast.present();
+        this.presentToast(fail);
         refresher.complete();
       });
     }
@@ -112,7 +104,7 @@ export class BluetoothPage {
       isConnected => {
         let alert = this.alertCtrl.create({
           title: 'Reconectar',
-          message: '¿Desea reconectarse a este dispositivo?',
+          message: '¿Desea reconectar a este dispositivo?',
           buttons: [
             {
               text: 'Cancelar',
@@ -125,6 +117,11 @@ export class BluetoothPage {
               text: 'Aceptar',
               handler: () => {
                 this.desconectar();
+                this.conectar(seleccion.id).then(success => {
+                  this.presentToast(success);
+                }, fail => {
+                  this.presentToast(fail);
+                });
               }
             }
           ]
@@ -145,7 +142,11 @@ export class BluetoothPage {
             {
               text: 'Aceptar',
               handler: () => {
-                this.conectar(seleccion["id"]);
+                this.conectar(seleccion.id).then(success => {
+                  this.presentToast(success);
+                }, fail => {
+                  this.presentToast(fail);
+                });
               }
             }
           ]
@@ -161,10 +162,11 @@ export class BluetoothPage {
   conectar(id: string) {
     return new Promise((resolve, reject) => {
       this.conexion = this.bluetoothSerial.connect(id).subscribe((data: Observable<any>) => {
-        this.dataInOut("OK");
-        resolve("conectado");
+        this.enviarMensajes();
+        resolve("Conectado");
       }, fail => {
-        reject("no se logro conectar");
+        console.log(`[3] Error conexión: ${JSON.stringify(fail)}`);
+        reject("No se logro conectar");
       });
     });
   }
@@ -172,7 +174,10 @@ export class BluetoothPage {
    * Cierra el socket para la conexión con un dispositivo bluetooth.
    */
   desconectar() {
-    if (this.conexion){
+    if (this.conexionMensajes) {
+      this.conexionMensajes.unsubscribe();
+    }
+    if (this.conexion) {
       this.conexion.unsubscribe();
     }
   }
@@ -181,7 +186,16 @@ export class BluetoothPage {
    */
   enviarMensajes() {
     this.conexionMensajes = this.dataInOut(this.mensaje).subscribe(data => {
-      console.log(data);
+      let entrada = data.substr(0, data.length - 1);
+      if (entrada != ">") {
+        if (entrada != "") {
+          console.log(`Entrada: ${entrada}`);
+          this.presentToast(entrada);
+        }
+      } else {
+        this.conexionMensajes.unsubscribe();
+      }
+      this.mensaje = "";
     });
   }
   /**
@@ -206,9 +220,20 @@ export class BluetoothPage {
           observer.next(data);
         });
       }, notConected => {
-        observer.next("No estas conectado a ningun dispositivo bluetooth");
+        observer.next("Estas desconectado");
         observer.complete();
       });
     });
+  }
+  /**
+   * Presenta un cuadro de mensaje.
+   * @param text Mensaje a mostrar.
+   */
+  private presentToast(text) {
+    let toast = this.toastCtrl.create({
+      message: text,
+      duration: 3000
+    });
+    toast.present();
   }
 }
