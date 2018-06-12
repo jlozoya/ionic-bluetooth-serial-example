@@ -4,7 +4,7 @@ import { BluetoothSerial } from '@ionic-native/bluetooth-serial';
 import { Observable } from 'rxjs';
 import { ISubscription } from "rxjs/Subscription";
 
-/** 
+/**
  * Esta clase maneja la conectividad bluetooth
  * @author Juan Lozoya <jlozoya1995@gmail.com>
  * @see [Bluetooth Serial](https://ionicframework.com/docs/native/bluetooth-serial/)
@@ -20,16 +20,16 @@ import { ISubscription } from "rxjs/Subscription";
 })
 export class BluetoothPage {
 
-  li_devices: Array<any> = [];
+  devices: Array<any> = [];
   mostrarSpiner = true;
   mensaje: string = "";
   conexion: ISubscription;
   conexionMensajes: ISubscription;
   reader: Observable<any>;
   rawListener;
-  
+
   constructor(
-    private platform: Platform, 
+    private platform: Platform,
     private toastCtrl: ToastController,
     private alertCtrl: AlertController,
     private bluetoothSerial: BluetoothSerial
@@ -39,8 +39,8 @@ export class BluetoothPage {
    */
   ionViewDidEnter() {
     this.platform.ready().then(() => {
-      this.buscar_bluetooth().then((success: Array<Object>) => {
-        this.li_devices = success;
+      this.buscarBluetooth().then((success: Array<Object>) => {
+        this.devices = success;
         this.mostrarSpiner = false;
       }, fail => {
         this.presentToast(fail);
@@ -57,9 +57,9 @@ export class BluetoothPage {
   /**
    * Busca los dispositivos bluetooth disponibles, evalúa si es posible usar la funcionalidad
    * bluetooth en el dispositivo.
-   * @return {Promise<Object>} Regresa una lista de los dispositivos que se localizaron.
+   * @return {Promise<any>} Regresa una lista de los dispositivos que se localizaron.
    */
-  buscar_bluetooth() {
+  buscarBluetooth(): Promise<Object> {
     return new Promise((resolve, reject) => {
       this.bluetoothSerial.isEnabled().then(success =>{
         this.bluetoothSerial.discoverUnpaired().then(success => {
@@ -80,14 +80,14 @@ export class BluetoothPage {
   }
   /**
    * Busca los dispositivos bluetooth dispositivos al arrastrar la pantalla hacia abajo.
-   * @param refresher 
+   * @param refresher
    */
-  refresh_bluetooth(refresher: Refresher) {
+  refreshBluetooth(refresher: Refresher) {
     console.log(refresher);
     if (refresher) {
-      this.buscar_bluetooth().then((successMessage: Array<Object>) => {
-        this.li_devices = [];
-        this.li_devices = successMessage;
+      this.buscarBluetooth().then((successMessage: Array<Object>) => {
+        this.devices = [];
+        this.devices = successMessage;
         refresher.complete();
       }, fail => {
         this.presentToast(fail);
@@ -99,7 +99,7 @@ export class BluetoothPage {
    * Verifica si ya se encuentra conectado a un dispositivo bluetooth o no.
    * @param seleccion Son los datos del elemento seleccionado  de la lista
    */
-  revisar_conexion(seleccion) {
+  revisarConexion(seleccion) {
     this.bluetoothSerial.isConnected().then(
       isConnected => {
         let alert = this.alertCtrl.create({
@@ -159,7 +159,7 @@ export class BluetoothPage {
    * @param id Es la id del dispositivo al que se desea conectarse
    * @return {Promise<any>} Regresa un mensaje para indicar si se conectó exitosamente o no.
    */
-  conectar(id: string) {
+  conectar(id: string): Promise<any> {
     return new Promise((resolve, reject) => {
       this.conexion = this.bluetoothSerial.connect(id).subscribe((data: Observable<any>) => {
         this.enviarMensajes();
@@ -202,11 +202,11 @@ export class BluetoothPage {
    * Establece el socket para las comunicaciones seriales después de conectarse con un dispositivo
    * bluetooth.
    * @param message Es el texto que se desea enviar.
-   * @returns {Observable<any>} Regresa el texto que llegue vía seria a través de la conexión 
+   * @returns {Observable<any>} Regresa el texto que llegue vía seria a través de la conexión
    * bluetooth al dispositivo, en caso de no existir una conexión regresa un mensaje indicando que:
    * _No estas conectado a ningún dispositivo bluetooth_.
    */
-  public dataInOut(message: string) {
+  public dataInOut(message: string): Observable<any> {
     return Observable.create(observer => {
       this.bluetoothSerial.isConnected().then(isConnected => {
         this.reader = Observable.fromPromise(this.bluetoothSerial.write(message))
@@ -227,9 +227,9 @@ export class BluetoothPage {
   }
   /**
    * Presenta un cuadro de mensaje.
-   * @param text Mensaje a mostrar.
+   * @param {string} text Mensaje a mostrar.
    */
-  private presentToast(text) {
+  private presentToast(text: string) {
     let toast = this.toastCtrl.create({
       message: text,
       duration: 3000

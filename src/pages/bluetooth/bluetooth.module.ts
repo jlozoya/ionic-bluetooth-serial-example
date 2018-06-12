@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { IonicPageModule } from 'ionic-angular';
-import { SharedModule } from '../../shared/shared.module';
 import { BluetoothPage } from './bluetooth';
 
 @NgModule({
@@ -8,8 +7,7 @@ import { BluetoothPage } from './bluetooth';
     BluetoothPage,
   ],
   imports: [
-    IonicPageModule.forChild(BluetoothPage),
-    SharedModule
+    IonicPageModule.forChild(BluetoothPage)
   ],
   exports: [
     BluetoothPage

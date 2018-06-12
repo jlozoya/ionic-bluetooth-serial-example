@@ -1,42 +1,51 @@
 <ion-header>
   <ion-navbar>
+
     <button ion-button menuToggle>
       <ion-icon name="menu"></ion-icon>
-    </button>     
+    </button>
+
     <ion-title>
-      Conectar
+      Bluetooth
     </ion-title>
+
   </ion-navbar>
 </ion-header>
 
 <ion-content>
-<ion-refresher *ngIf="mostrarSpiner === false" (ionRefresh)="refresh_bluetooth($event)">
-  <ion-refresher-content refreshingText="Buscando dispositivos bluetooth"></ion-refresher-content>
-</ion-refresher>
-<ion-segment [hidden]="mostrarSpiner === false" align="center">
-  <ion-spinner></ion-spinner>
-  Buscando dispositivos bluetooth
-</ion-segment>
-<ion-item-group>
-  <ion-item-sliding *ngFor="let device of li_devices">
-    <button (click)="revisar_conexion(device)" ion-item>
-      <h3>Nombre: {{device.name}}</h3>
-      <p>Id: {{device.id}}</p>
-      <p>Dirección <span [hidden]="device.address == undefined">mac</span><span [hidden]="device.uuid == undefined">uuid</span>: {{device.address}}{{device.uuid}}</p>
-      <p><span [hidden]="device.class == undefined">Clase</span><span [hidden]="device.rssi == undefined">Rssi</span>: {{device.class}}{{device.rssi}}</p>
-    </button>
-  </ion-item-sliding>
-</ion-item-group>
-<form (ngSubmit)="enviarMensajes();">
-  <ion-item>
-    <ion-input type="text" [(ngModel)]="mensaje" name="mensaje"></ion-input>
-  </ion-item>
-  <ion-segment>
-    <button ion-button (click)="desconectar()" block>Desconectar</button>
-    <button ion-button type="submit" block>Enviar</button>
+
+  <ion-refresher *ngIf="mostrarSpiner === false" (ionRefresh)="refreshBluetooth($event)">
+    <ion-refresher-content refreshingText="Buscando dispositivos bluetooth"></ion-refresher-content>
+  </ion-refresher>
+
+  <ion-segment [hidden]="mostrarSpiner === false" align="center">
+    <ion-spinner></ion-spinner>
+    Buscando dispositivos bluetooth
   </ion-segment>
-</form>
-<div [hidden]="li_devices.length > 0 || mostrarSpiner == true" align="center">
-  <p>No se han encontrado dispositivos desliza hacia abajo para volver a buscar</p>
-</div>
+
+  <ion-item-group>
+    <ion-item-sliding *ngFor="let device of devices">
+      <button (click)="revisarConexion(device)" ion-item>
+        <h3>Nombre: {{device.name}}</h3>
+        <p>Id: {{device.id}}</p>
+        <p>Dirección <span [hidden]="device.address == undefined">mac</span><span [hidden]="device.uuid == undefined">uuid</span>: {{device.address}}{{device.uuid}}</p>
+        <p><span [hidden]="device.class == undefined">Clase</span><span [hidden]="device.rssi == undefined">Rssi</span>: {{device.class}}{{device.rssi}}</p>
+      </button>
+    </ion-item-sliding>
+  </ion-item-group>
+
+  <form (ngSubmit)="enviarMensajes();">
+    <ion-item>
+      <ion-input type="text" [(ngModel)]="mensaje" name="mensaje"></ion-input>
+    </ion-item>
+    <ion-segment>
+      <button ion-button (click)="desconectar()" block>Desconectar</button>
+      <button ion-button type="submit" block>Enviar</button>
+    </ion-segment>
+  </form>
+
+  <div [hidden]="devices.length > 0 || mostrarSpiner == true" text-center>
+    <p>No se han encontrado dispositivos, activa el bluetooth y desliza hacia abajo para volver a buscar</p>
+  </div>
+
 </ion-content>
