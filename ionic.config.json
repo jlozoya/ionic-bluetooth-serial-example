@@ -1,5 +1,5 @@
 {
-  "name": "sensor_simulator",
+  "name": "ionic-bluetooth-serial-example",
   "app_id": "",
   "type": "ionic-angular",
   "integrations": {
