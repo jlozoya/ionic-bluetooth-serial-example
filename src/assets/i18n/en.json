@@ -1,0 +1,27 @@
+{
+  "PRESS_AGAIN_TO_EXIT": "Press again to exit",
+  "BACK_BUTTON_TEXT": "Back",
+  "BLUETOOTH": {
+    "NAME": "Name",
+    "ID": "ID",
+    "ADDRESS": "Address",
+    "NOT_FOUND": "No bluetooth devices were found make sure it is activated and drag down to search again",
+    "CONNECTED": "Connected to the device",
+    "NOT_CONNECTED": "Bluetooth is not connected",
+    "NOT_DEVICES_FOUND": "No bluetooth devices were found",
+    "NOT_AVAILABLE_IN_THIS_DEVICE": "Bluetooth is not available on this device",
+    "NOT_AVAILABLE": "The bluetooth is not available",
+    "CANNOT_CONNECT": "Unable to connect the bluetooth",
+    "SEARCHING": "Searching bluetooth devices",
+    "ALERTS": {
+      "CONNECT": {
+        "TITLE": "Connect",
+        "MESSAGE": "Connect with this device"
+      },
+      "RECONNECT": {
+        "TITLE": "Reconnect",
+        "MESSAGE": "Connect with this device"
+      }
+    }
+  }
+}

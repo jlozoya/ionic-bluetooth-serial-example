@@ -1,8 +1,7 @@
 {
-  "name": "ionic-bluetooth-serial-example",
-  "app_id": "",
-  "type": "ionic-angular",
+  "name": "nevo2",
   "integrations": {
     "cordova": {}
-  }
+  },
+  "type": "angular"
 }

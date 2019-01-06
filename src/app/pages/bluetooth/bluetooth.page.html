@@ -1,0 +1,62 @@
+<ion-header>
+  <ion-toolbar class="menu-toggle-change-color">
+    <ion-buttons slot="start">
+      <ion-menu-toggle>
+        <ion-button>
+          <ion-icon slot="icon-only" name="menu"></ion-icon>
+        </ion-button>
+      </ion-menu-toggle>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-refresher *ngIf="showSpinner === false" (ionRefresh)="refreshBluetooth($event)">
+    <ion-refresher-content refreshingText="{{ 'BLUETOOTH.SEARCHING' | translate }}">
+    </ion-refresher-content>
+  </ion-refresher>
+  <div [hidden]="showSpinner === false" text-center>
+    <ion-spinner></ion-spinner><br>
+    {{ "BLUETOOTH.SEARCHING" | translate }}
+  </div>
+
+  <ion-list lines="full">
+    <ion-item button (click)="checkConnection(device)" *ngFor="let device of devices">
+      <ion-text>
+        <h3>{{ "BLUETOOTH.NAME" | translate }}: {{device.name}}</h3>
+        <p>{{ "BLUETOOTH.ID" | translate }}: {{device.id}}</p>
+        <p>{{ "BLUETOOTH.ADDRESS" | translate }}
+          <span [hidden]="device.address == undefined">mac</span>
+          <span [hidden]="device.uuid == undefined">uuid</span>
+          {{device.address}} {{device.uuid}}
+        </p>
+        <p>
+          <span [hidden]="device.class == undefined">Clase</span>
+          <span [hidden]="device.rssi == undefined">Rssi</span>
+          {{device.class}} {{device.rssi}}
+        </p>
+      </ion-text>
+    </ion-item>
+  </ion-list>
+  <form (ngSubmit)="sendMessage();">
+    <ion-item>
+      <ion-input type="text" [(ngModel)]="message" name="message"></ion-input>
+    </ion-item>
+    <ion-row>
+      <ion-col>
+        <ion-button expand="block" color="dark" (click)="disconnect()" [disabled]="!isConnected">
+          {{ "DISCONNECT" | translate }}
+        </ion-button>
+      </ion-col>
+      <ion-col>
+        <ion-button expand="block" type="submit" [disabled]="!isConnected">
+          {{ "SEND" | translate }}
+        </ion-button>
+      </ion-col>
+    </ion-row>
+  </form>
+  <p *ngFor="let item of messages">{{ item }}</p>
+  <div [hidden]="devices.length > 0 || showSpinner == true || isConnected" text-center>
+    <p>{{ "BLUETOOTH.NOT_FOUND" | translate }}</p>
+  </div>
+</ion-content>
