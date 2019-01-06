@@ -1,6 +1,8 @@
 {
   "PRESS_AGAIN_TO_EXIT": "Press again to exit",
   "BACK_BUTTON_TEXT": "Back",
+  "SEND": "Send",
+  "DISCONNECT": "Disconnect",
   "BLUETOOTH": {
     "NAME": "Name",
     "ID": "ID",

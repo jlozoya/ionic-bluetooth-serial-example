@@ -1,6 +1,8 @@
 {
   "PRESS_AGAIN_TO_EXIT": "Pulsa de nuevo para salir",
   "BACK_BUTTON_TEXT": "Atras",
+  "SEND": "Enviar",
+  "DISCONNECT": "Desconectar",
   "BLUETOOTH": {
     "NAME": "Nombre",
     "ID": "ID",
