@@ -3,7 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 
 const routes: Routes = [
   { path: '', redirectTo: 'bluetooth', pathMatch: 'full' },
-  { path: 'bluetooth', loadChildren: './pages/bluetooth/bluetooth.module#BluetoothPageModule' },
+  { path: 'bluetooth', loadChildren: () => import('./pages/bluetooth/bluetooth.module').then(m => m.BluetoothPageModule) },
 ];
 
 @NgModule({

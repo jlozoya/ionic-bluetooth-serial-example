@@ -8,6 +8,7 @@ import { TranslateService } from '@ngx-translate/core';
  */
 @Component({
   selector: 'app-bluetooth',
+  standalone: false,
   templateUrl: 'bluetooth.page.html',
   styleUrls: ['bluetooth.page.scss']
 })
@@ -17,7 +18,7 @@ export class BluetoothPage implements OnInit, OnDestroy {
   showSpinner = false;
   isConnected = false;
   message = '';
-  messages = [];
+  messages: string[] = [];
 
   constructor(
     private toastCtrl: ToastController,
@@ -35,7 +36,6 @@ export class BluetoothPage implements OnInit, OnDestroy {
     this.bluetooth.storedConnection().then((connected) => {
       this.isConnected = true;
       this.showSpinner = false;
-      this.sendMessage('nada');
     }, (fail) => {
       this.bluetooth.searchBluetooth().then((devices: Array<Object>) => {
         this.devices = devices;
@@ -67,7 +67,7 @@ export class BluetoothPage implements OnInit, OnDestroy {
    * Busca los dispositivos bluetooth dispositivos al arrastrar la pantalla hacia abajo.
    * @param refresher
    */
-  refreshBluetooth(refresher) {
+  refreshBluetooth(refresher: any) {
     if (refresher) {
       this.bluetooth.searchBluetooth().then((successMessage: Array<Object>) => {
         this.devices = [];
@@ -83,7 +83,7 @@ export class BluetoothPage implements OnInit, OnDestroy {
    * Verifica si ya se encuentra conectado a un dispositivo bluetooth o no.
    * @param seleccion Son los datos del elemento seleccionado  de la lista
    */
-  checkConnection(seleccion) {
+  checkConnection(seleccion: { id: string }) {
     this.bluetooth.checkConnection().then(async (isConnected) => {
       const alert = await this.alertCtrl.create({
         header: this.translate.instant('BLUETOOTH.ALERTS.RECONNECT.TITLE'),
@@ -99,7 +99,6 @@ export class BluetoothPage implements OnInit, OnDestroy {
             handler: () => {
               this.disconnect().then(() => {
                 this.bluetooth.deviceConnection(seleccion.id).then(success => {
-                  this.sendMessage('nada');
                   this.isConnected = true;
                   this.presentToast(this.translate.instant(success));
                 }, fail => {
@@ -126,7 +125,6 @@ export class BluetoothPage implements OnInit, OnDestroy {
             text: this.translate.instant('ACCEPT'),
             handler: () => {
               this.bluetooth.deviceConnection(seleccion.id).then(success => {
-                this.sendMessage('nada');
                 this.isConnected = true;
                 this.presentToast(this.translate.instant(success));
               }, fail => {
@@ -144,12 +142,16 @@ export class BluetoothPage implements OnInit, OnDestroy {
    * Permite enviar mensajes de texto vía serial al conectarse por bluetooth.
    */
   sendMessage(message: string) {
-    this.bluetooth.dataInOut(`${message}\n`).subscribe(data => {
+    const outgoingMessage = (message || '').trim();
+    if (!outgoingMessage || !this.isConnected) {
+      return;
+    }
+    this.bluetooth.dataInOut(`${outgoingMessage}\n`).subscribe(data => {
       if (data !== 'BLUETOOTH.NOT_CONNECTED') {
         try {
           if (data) {
             const entry = JSON.parse(data);
-            this.addLine(message);
+            this.addLine(outgoingMessage);
           }
         } catch (error) {
           console.log(`[bluetooth-168]: ${JSON.stringify(error)}`);
@@ -165,7 +167,7 @@ export class BluetoothPage implements OnInit, OnDestroy {
    * Recupera la información básica del servidor para las graficas de lineas.
    * @param message
    */
-  addLine(message) {
+  addLine(message: string) {
     this.messages.push(message);
   }
   /**

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { BluetoothSerial } from '@ionic-native/bluetooth-serial/ngx';
+import { BluetoothSerial } from '@awesome-cordova-plugins/bluetooth-serial/ngx';
 import { StorageService } from '../storage/storage.service';
-import { Observable, Subscription, from } from 'rxjs';
+import { Observable, Subscriber, Subscription, from } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
 /**
  * Esta clase maneja la conectividad bluetooth.
@@ -12,9 +12,9 @@ import { mergeMap } from 'rxjs/operators';
 @Injectable()
 export class BluetoothService {
 
-  private connection: Subscription;
-  private connectionCommunication: Subscription;
-  private reader: Observable<any>;
+  private connection?: Subscription;
+  private connectionCommunication?: Subscription;
+  private reader?: Observable<any>;
 
   constructor(
     private bluetoothSerial: BluetoothSerial,
@@ -25,7 +25,7 @@ export class BluetoothService {
    * bluetooth en el dispositivo.
    * @return {Promise<Object>} Regresa una lista de los dispositivos que se localizaron.
    */
-  searchBluetooth(): Promise<Object> {
+  searchBluetooth(): Promise<any[]> {
     return new Promise((resolve, reject) => {
       this.bluetoothSerial.isEnabled().then(success => {
         this.bluetoothSerial.discoverUnpaired().then(response => {
@@ -77,15 +77,15 @@ export class BluetoothService {
    * @return {Promise<boolean>}
    */
   disconnect(): Promise<boolean> {
-    return new Promise((result) => {
+    return this.bluetoothSerial.disconnect().then(() => {
       if (this.connectionCommunication) {
         this.connectionCommunication.unsubscribe();
       }
       if (this.connection) {
         this.connection.unsubscribe();
       }
-      result(true);
-    });
+      return true;
+    }, () => true);
   }
   /**
    * Establece el socket para las comunicaciones seriales después de conectarse con un dispositivo
@@ -96,15 +96,17 @@ export class BluetoothService {
    * _No estas conectado a ningún dispositivo bluetooth_.
    */
   dataInOut(message: string): Observable<any> {
-    return Observable.create(observer => {
+    return new Observable((observer: Subscriber<any>) => {
       this.bluetoothSerial.isConnected().then((isConnected) => {
         this.reader = from(this.bluetoothSerial.write(message)).pipe(mergeMap(() => {
             return this.bluetoothSerial.subscribeRawData();
           })).pipe(mergeMap(() => {
             return this.bluetoothSerial.readUntil('\n');   // <= delimitador
           }));
-        this.reader.subscribe(data => {
-          observer.next(data);
+        this.connectionCommunication = this.reader.subscribe({
+          next: data => observer.next(data),
+          error: error => observer.error(error),
+          complete: () => observer.complete()
         });
       }, notConected => {
         observer.next('BLUETOOTH.NOT_CONNECTED');
@@ -121,6 +123,10 @@ export class BluetoothService {
     return new Promise((resolve, reject) => {
       this.storage.getBluetoothId().then(bluetoothId => {
         console.log(`[bluetooth.service-129] ${bluetoothId}`);
+        if (!bluetoothId) {
+          reject('BLUETOOTH.NOT_CONNECTED');
+          return;
+        }
         this.deviceConnection(bluetoothId).then(success => {
           resolve(success);
         }, fail => {

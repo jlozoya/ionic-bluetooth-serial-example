@@ -38,18 +38,18 @@
       </ion-text>
     </ion-item>
   </ion-list>
-  <form (ngSubmit)="sendMessage();">
+  <form (ngSubmit)="sendMessage(message)">
     <ion-item>
       <ion-input type="text" [(ngModel)]="message" name="message"></ion-input>
     </ion-item>
     <ion-row>
       <ion-col>
-        <ion-button expand="block" color="dark" (click)="disconnect()" [disabled]="!isConnected">
+        <ion-button expand="block" color="dark" type="button" (click)="disconnect()" [disabled]="!isConnected">
           {{ "DISCONNECT" | translate }}
         </ion-button>
       </ion-col>
       <ion-col>
-        <ion-button expand="block" type="submit" [disabled]="!isConnected">
+        <ion-button expand="block" type="submit" [disabled]="!isConnected || !message.trim()">
           {{ "SEND" | translate }}
         </ion-button>
       </ion-col>

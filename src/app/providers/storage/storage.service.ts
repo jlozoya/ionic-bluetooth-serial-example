@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { Events } from '@ionic/angular';
-import { Storage } from '@ionic/storage';
+import { Storage } from '@ionic/storage-angular';
 
 @Injectable()
 export class StorageService {
@@ -10,9 +9,10 @@ export class StorageService {
   LANG = 'lang';
 
   constructor(
-    public events: Events,
     public storage: Storage
-  ) {}
+  ) {
+    this.storage.create();
+  }
   /**
    * Devuelve el tipo de usuario.
    * @return {Promise<string | null>} bluetoothId.

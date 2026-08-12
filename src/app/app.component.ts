@@ -1,24 +1,20 @@
 import { TranslateService } from '@ngx-translate/core';
 import { Component } from '@angular/core';
 
-import { Platform, Config } from '@ionic/angular';
-import { SplashScreen } from '@ionic-native/splash-screen/ngx';
-import { StatusBar } from '@ionic-native/status-bar/ngx';
+import { Platform } from '@ionic/angular';
 import { StorageService } from './providers/providers';
 
 @Component({
   selector: 'app-root',
+  standalone: false,
   templateUrl: 'app.component.html'
 })
 export class AppComponent {
 
   constructor(
     private platform: Platform,
-    private splashScreen: SplashScreen,
-    private statusBar: StatusBar,
     private translate: TranslateService,
-    private storage: StorageService,
-    private config: Config
+    private storage: StorageService
   ) {
     this.initTranslate();
     this.initializeApp();
@@ -28,24 +24,21 @@ export class AppComponent {
    */
   initializeApp() {
     this.platform.ready().then(() => {
-      this.statusBar.styleDefault();
-      this.splashScreen.hide();
+      // Native plugins are available after the platform is ready.
     });
   }
   /**
    * Establezca el idioma predeterminado para las cadenas de traducción y el idioma actual.
    */
   initTranslate() {
-    this.translate.setDefaultLang('es');
+    this.translate.setFallbackLang('es');
     this.storage.getLang().then(lang => {
-      if (!lang && this.translate.getBrowserLang() !== undefined) {
-        this.translate.use(this.translate.getBrowserLang());
+      const browserLang = this.translate.getBrowserLang();
+      if (!lang && browserLang) {
+        this.translate.use(browserLang);
       } else {
         this.translate.use(lang || 'es'); // Establezca su idioma aquí
       }
-      this.translate.get(['BACK_BUTTON_TEXT']).subscribe(values => {
-        this.config.set('backButtonText', values.BACK_BUTTON_TEXT);
-      });
     });
   }
 }
